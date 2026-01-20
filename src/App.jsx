@@ -1,4 +1,86 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, createContext, useContext } from 'react';
+
+// Theme definitions - professional color schemes
+const themes = {
+  navy: {
+    name: 'Navy',
+    bg: 'bg-slate-900',
+    bgSecondary: 'bg-slate-800',
+    bgTertiary: 'bg-slate-700',
+    border: 'border-slate-700',
+    text: 'text-white',
+    textMuted: 'text-slate-400',
+    textSubtle: 'text-slate-500',
+    accent: 'bg-blue-600',
+    accentHover: 'hover:bg-blue-500',
+    accentText: 'text-blue-400',
+    tabActive: 'bg-white text-slate-900',
+    tabInactive: 'bg-slate-700/80 text-slate-300',
+  },
+  forest: {
+    name: 'Forest',
+    bg: 'bg-emerald-950',
+    bgSecondary: 'bg-emerald-900',
+    bgTertiary: 'bg-emerald-800',
+    border: 'border-emerald-800',
+    text: 'text-white',
+    textMuted: 'text-emerald-300',
+    textSubtle: 'text-emerald-400',
+    accent: 'bg-emerald-600',
+    accentHover: 'hover:bg-emerald-500',
+    accentText: 'text-emerald-400',
+    tabActive: 'bg-white text-emerald-950',
+    tabInactive: 'bg-emerald-800/80 text-emerald-200',
+  },
+  burgundy: {
+    name: 'Burgundy',
+    bg: 'bg-rose-950',
+    bgSecondary: 'bg-rose-900',
+    bgTertiary: 'bg-rose-800',
+    border: 'border-rose-800',
+    text: 'text-white',
+    textMuted: 'text-rose-300',
+    textSubtle: 'text-rose-400',
+    accent: 'bg-rose-600',
+    accentHover: 'hover:bg-rose-500',
+    accentText: 'text-rose-400',
+    tabActive: 'bg-white text-rose-950',
+    tabInactive: 'bg-rose-800/80 text-rose-200',
+  },
+  charcoal: {
+    name: 'Charcoal',
+    bg: 'bg-neutral-900',
+    bgSecondary: 'bg-neutral-800',
+    bgTertiary: 'bg-neutral-700',
+    border: 'border-neutral-700',
+    text: 'text-white',
+    textMuted: 'text-neutral-400',
+    textSubtle: 'text-neutral-500',
+    accent: 'bg-neutral-600',
+    accentHover: 'hover:bg-neutral-500',
+    accentText: 'text-neutral-300',
+    tabActive: 'bg-white text-neutral-900',
+    tabInactive: 'bg-neutral-700/80 text-neutral-300',
+  },
+  teal: {
+    name: 'Teal',
+    bg: 'bg-teal-950',
+    bgSecondary: 'bg-teal-900',
+    bgTertiary: 'bg-teal-800',
+    border: 'border-teal-800',
+    text: 'text-white',
+    textMuted: 'text-teal-300',
+    textSubtle: 'text-teal-400',
+    accent: 'bg-teal-600',
+    accentHover: 'hover:bg-teal-500',
+    accentText: 'text-teal-400',
+    tabActive: 'bg-white text-teal-950',
+    tabInactive: 'bg-teal-800/80 text-teal-200',
+  },
+};
+
+const ThemeContext = createContext();
+const useTheme = () => useContext(ThemeContext);
 
 const stationsData = {
   day1: [
@@ -342,68 +424,73 @@ const stationsData = {
   ]
 };
 
-// Optimized for one-hand use with large touch targets
-const EmotionBadge = ({ arc }) => (
-  <div className="bg-slate-700/80 backdrop-blur rounded-2xl p-4 mb-4">
-    <div className="space-y-3">
-      <div className="flex items-center gap-3">
-        <span className="bg-red-500/20 text-red-400 font-bold text-xs px-3 py-1.5 rounded-full">START</span>
-        <span className="text-white text-sm flex-1">{arc.start}</span>
-      </div>
-      <div className="flex items-center gap-3">
-        <span className="bg-yellow-500/20 text-yellow-400 font-bold text-xs px-2 py-1.5 rounded-full">TRIGGER</span>
-        <span className="text-slate-300 text-sm flex-1">{arc.trigger}</span>
-      </div>
-      <div className="flex items-center gap-3">
-        <span className="bg-green-500/20 text-green-400 font-bold text-xs px-3 py-1.5 rounded-full">END</span>
-        <span className="text-white text-sm flex-1">{arc.end}</span>
+const EmotionBadge = ({ arc }) => {
+  const theme = useTheme();
+  return (
+    <div className={`${theme.bgTertiary}/80 backdrop-blur rounded-2xl p-4 mb-4`}>
+      <div className="space-y-3">
+        <div className="flex items-center gap-3">
+          <span className="bg-red-500/20 text-red-400 font-bold text-xs px-3 py-1.5 rounded-full">START</span>
+          <span className={`${theme.text} text-sm flex-1`}>{arc.start}</span>
+        </div>
+        <div className="flex items-center gap-3">
+          <span className="bg-yellow-500/20 text-yellow-400 font-bold text-xs px-2 py-1.5 rounded-full">TRIGGER</span>
+          <span className={`${theme.textMuted} text-sm flex-1`}>{arc.trigger}</span>
+        </div>
+        <div className="flex items-center gap-3">
+          <span className="bg-green-500/20 text-green-400 font-bold text-xs px-3 py-1.5 rounded-full">END</span>
+          <span className={`${theme.text} text-sm flex-1`}>{arc.end}</span>
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
-// Large touch-friendly question card
-const QuestionCard = ({ question, isChecked, onToggle, isExpanded, onExpand }) => (
-  <div
-    className={`rounded-2xl p-4 mb-3 transition-all border-2 active:scale-[0.98] ${
-      isChecked
-        ? 'bg-green-900/30 border-green-600'
-        : 'bg-slate-700/80 border-slate-600'
-    }`}
-  >
-    <div className="flex items-start gap-4">
-      <button
-        onClick={onToggle}
-        className={`w-12 h-12 rounded-full flex-shrink-0 flex items-center justify-center text-lg font-bold transition-all active:scale-90 ${
-          isChecked
-            ? 'bg-green-500 text-white shadow-lg shadow-green-500/30'
-            : 'bg-slate-600 text-slate-300'
-        }`}
-        aria-label={isChecked ? 'Mark as not asked' : 'Mark as asked'}
-      >
-        {isChecked ? '✓' : question.id}
-      </button>
-      <div className="flex-1 min-w-0">
+const QuestionCard = ({ question, isChecked, onToggle, isExpanded, onExpand }) => {
+  const theme = useTheme();
+  return (
+    <div
+      className={`rounded-2xl p-4 mb-3 transition-all border-2 active:scale-[0.98] ${
+        isChecked
+          ? 'bg-green-900/30 border-green-600'
+          : `${theme.bgTertiary}/80 ${theme.border}`
+      }`}
+    >
+      <div className="flex items-start gap-4">
         <button
-          onClick={onExpand}
-          className="text-left w-full min-h-[44px] flex items-center"
+          onClick={onToggle}
+          className={`w-12 h-12 rounded-full flex-shrink-0 flex items-center justify-center text-lg font-bold transition-all active:scale-90 ${
+            isChecked
+              ? 'bg-green-500 text-white shadow-lg shadow-green-500/30'
+              : `${theme.bgTertiary} ${theme.textMuted}`
+          }`}
+          aria-label={isChecked ? 'Mark as not asked' : 'Mark as asked'}
         >
-          <p className={`font-medium text-base leading-snug ${isChecked ? 'text-green-300 line-through' : 'text-white'}`}>
-            {question.text}
-          </p>
+          {isChecked ? '✓' : question.id}
         </button>
-        {isExpanded && (
-          <div className="mt-3 p-4 bg-slate-800/90 rounded-xl border-l-4 border-amber-500">
-            <p className="text-xs text-slate-400 mb-2 uppercase tracking-wide">Say something like:</p>
-            <p className="text-amber-200 italic text-base leading-relaxed">"{question.prompt}"</p>
-          </div>
-        )}
+        <div className="flex-1 min-w-0">
+          <button
+            onClick={onExpand}
+            className="text-left w-full min-h-[44px] flex items-center"
+          >
+            <p className={`font-medium text-base leading-snug ${isChecked ? 'text-green-300 line-through' : theme.text}`}>
+              {question.text}
+            </p>
+          </button>
+          {isExpanded && (
+            <div className={`mt-3 p-4 ${theme.bgSecondary}/90 rounded-xl border-l-4 border-amber-500`}>
+              <p className={`text-xs ${theme.textMuted} mb-2 uppercase tracking-wide`}>Say something like:</p>
+              <p className="text-amber-200 italic text-base leading-relaxed">"{question.prompt}"</p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 const StationView = ({ station, onBack }) => {
+  const theme = useTheme();
   const [checkedQuestions, setCheckedQuestions] = useState({});
   const [expandedQuestion, setExpandedQuestion] = useState(null);
   const [candidateCount, setCandidateCount] = useState(1);
@@ -421,7 +508,6 @@ const StationView = ({ station, onBack }) => {
     scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
-  // Swipe to go back (right edge swipe)
   const handleTouchStart = (e) => {
     touchStartX.current = e.touches[0].clientX;
   };
@@ -440,51 +526,47 @@ const StationView = ({ station, onBack }) => {
   return (
     <div
       ref={scrollRef}
-      className="min-h-screen bg-slate-900 pb-36 overflow-y-auto"
+      className={`min-h-screen ${theme.bg} pb-36 overflow-y-auto`}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
-      {/* Header - sticky with blur */}
-      <div className="sticky top-0 bg-slate-900/95 backdrop-blur-lg border-b border-slate-700/50 p-4 z-10 safe-top">
+      <div className={`sticky top-0 ${theme.bg}/95 backdrop-blur-lg border-b ${theme.border}/50 p-4 z-10 safe-top`}>
         <div className="flex items-center justify-between mb-3">
           <button
             onClick={onBack}
-            className="text-slate-400 active:text-white flex items-center gap-2 min-h-[44px] min-w-[44px] -ml-2 px-3 rounded-xl active:bg-slate-800 transition-colors"
+            className={`${theme.textMuted} active:${theme.text} flex items-center gap-2 min-h-[44px] min-w-[44px] -ml-2 px-3 rounded-xl active:${theme.bgTertiary} transition-colors`}
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
             <span>Back</span>
           </button>
-          <div className="bg-slate-700/80 px-4 py-2 rounded-full">
-            <span className="text-slate-400 text-sm">Candidate </span>
-            <span className="text-white font-bold">#{candidateCount}</span>
+          <div className={`${theme.bgTertiary}/80 px-4 py-2 rounded-full`}>
+            <span className={`${theme.textMuted} text-sm`}>Candidate </span>
+            <span className={`${theme.text} font-bold`}>#{candidateCount}</span>
           </div>
         </div>
-        <h1 className="text-xl font-bold text-white">{station.station}: {station.name}</h1>
-        <p className="text-slate-400 text-sm mt-1">{station.age} • {station.role}</p>
+        <h1 className={`text-xl font-bold ${theme.text}`}>{station.station}: {station.name}</h1>
+        <p className={`${theme.textMuted} text-sm mt-1`}>{station.age} • {station.role}</p>
 
-        {/* Progress bar */}
-        <div className="mt-4 bg-slate-700 rounded-full h-2.5 overflow-hidden">
+        <div className={`mt-4 ${theme.bgTertiary} rounded-full h-2.5 overflow-hidden`}>
           <div
             className="bg-gradient-to-r from-green-500 to-emerald-400 h-full rounded-full transition-all duration-500 ease-out"
             style={{ width: `${(answeredCount / station.questions.length) * 100}%` }}
           />
         </div>
-        <p className="text-slate-500 text-xs mt-2">{answeredCount}/{station.questions.length} questions addressed</p>
+        <p className={`${theme.textSubtle} text-xs mt-2`}>{answeredCount}/{station.questions.length} questions addressed</p>
       </div>
 
       <div className="p-4">
-        {/* Quick Summary */}
-        <div className="bg-slate-800/80 backdrop-blur rounded-2xl p-4 mb-4 border border-slate-700/50">
-          <p className="text-white leading-relaxed">{station.summary}</p>
+        <div className={`${theme.bgSecondary}/80 backdrop-blur rounded-2xl p-4 mb-4 border ${theme.border}/50`}>
+          <p className={`${theme.text} leading-relaxed`}>{station.summary}</p>
         </div>
 
-        {/* Medical Info Pills - scrollable horizontally */}
         <div className="flex flex-wrap gap-2 mb-4">
           {station.allergies !== 'None' && station.allergies !== 'None mentioned' && (
-            <span className="bg-red-900/80 text-red-200 px-4 py-2 rounded-full text-sm font-medium inline-flex items-center gap-1">
-              <span>⚠️</span> {station.allergies}
+            <span className="bg-red-900/80 text-red-200 px-4 py-2 rounded-full text-sm font-medium">
+              ALLERGY: {station.allergies}
             </span>
           )}
           {station.medicalHistory !== 'None relevant' && station.medicalHistory !== 'Not relevant' && station.medicalHistory !== 'None mentioned' && (
@@ -494,24 +576,20 @@ const StationView = ({ station, onBack }) => {
           )}
           {station.smoking !== 'Not mentioned' && station.smoking !== 'N/A' && station.smoking !== 'Non-smoker' && (
             <span className="bg-orange-900/80 text-orange-200 px-4 py-2 rounded-full text-sm">
-              🚬 {station.smoking}
+              Smoking: {station.smoking}
             </span>
           )}
           {station.alcohol !== 'Not mentioned' && station.alcohol !== 'N/A' && station.alcohol !== 'Non-drinker' && (
             <span className="bg-purple-900/80 text-purple-200 px-4 py-2 rounded-full text-sm">
-              🍺 {station.alcohol}
+              Alcohol: {station.alcohol}
             </span>
           )}
         </div>
 
-        {/* Emotional Arc */}
         <EmotionBadge arc={station.emotionalArc} />
 
-        {/* Key Points */}
         <div className="bg-amber-900/30 backdrop-blur rounded-2xl p-4 mb-6 border border-amber-700/50">
-          <h3 className="text-amber-400 font-semibold mb-3 flex items-center gap-2">
-            <span className="text-lg">🔑</span> Key Points
-          </h3>
+          <h3 className="text-amber-400 font-semibold mb-3">Key Points</h3>
           <ul className="space-y-2">
             {station.keyPoints.map((point, i) => (
               <li key={i} className="text-amber-100 text-sm flex items-start gap-2">
@@ -522,8 +600,7 @@ const StationView = ({ station, onBack }) => {
           </ul>
         </div>
 
-        {/* Questions */}
-        <h3 className="text-white font-semibold mb-4 text-lg">Questions to Ask</h3>
+        <h3 className={`${theme.text} font-semibold mb-4 text-lg`}>Questions to Ask</h3>
         {station.questions.map((q) => (
           <QuestionCard
             key={q.id}
@@ -536,19 +613,18 @@ const StationView = ({ station, onBack }) => {
         ))}
       </div>
 
-      {/* Bottom Action Bar - thumb-friendly zone */}
-      <div className="fixed bottom-0 left-0 right-0 bg-slate-800/95 backdrop-blur-lg border-t border-slate-700/50 p-4 safe-bottom">
+      <div className={`fixed bottom-0 left-0 right-0 ${theme.bgSecondary}/95 backdrop-blur-lg border-t ${theme.border}/50 p-4 safe-bottom`}>
         {allAnswered ? (
           <button
             onClick={resetForNextCandidate}
             className="w-full bg-gradient-to-r from-green-600 to-emerald-500 active:from-green-700 active:to-emerald-600 text-white py-5 rounded-2xl font-bold text-lg transition-all active:scale-[0.98] shadow-lg shadow-green-500/20"
           >
-            ✓ Complete — Next Candidate
+            Complete — Next Candidate
           </button>
         ) : (
           <button
             onClick={resetForNextCandidate}
-            className="w-full bg-slate-600 active:bg-slate-500 text-white py-5 rounded-2xl font-medium transition-all active:scale-[0.98]"
+            className={`w-full ${theme.bgTertiary} active:opacity-80 ${theme.text} py-5 rounded-2xl font-medium transition-all active:scale-[0.98]`}
           >
             Reset for Next Candidate
           </button>
@@ -558,110 +634,132 @@ const StationView = ({ station, onBack }) => {
   );
 };
 
-const StationList = ({ day, stations, onSelectStation }) => (
-  <div className="mb-6">
-    <h2 className="text-lg font-bold text-white mb-4 px-1">{day}</h2>
-    <div className="space-y-3">
-      {stations.map((station) => (
+const StationList = ({ day, stations, onSelectStation }) => {
+  const theme = useTheme();
+  return (
+    <div className="mb-6">
+      <h2 className={`text-lg font-bold ${theme.text} mb-4 px-1`}>{day}</h2>
+      <div className="space-y-3">
+        {stations.map((station) => (
+          <button
+            key={station.id}
+            onClick={() => onSelectStation(station)}
+            className={`w-full ${theme.bgSecondary}/80 backdrop-blur active:${theme.bgTertiary} rounded-2xl p-4 text-left transition-all border ${theme.border}/50 active:scale-[0.98]`}
+          >
+            <div className="flex justify-between items-start mb-2">
+              <span className={`${theme.bgTertiary} ${theme.text} px-3 py-1.5 rounded-lg text-sm font-medium`}>
+                {station.station}
+              </span>
+              <span className={`${theme.textMuted} text-sm`}>{station.questions.length} Qs</span>
+            </div>
+            <h3 className={`${theme.text} font-semibold text-lg mt-2`}>{station.name}</h3>
+            <p className={`${theme.textMuted} text-sm mt-1`}>{station.age} • {station.role}</p>
+            <p className={`${theme.textSubtle} text-sm mt-3 line-clamp-2 leading-relaxed`}>{station.summary}</p>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const ThemeSelector = ({ currentTheme, onThemeChange }) => {
+  const theme = useTheme();
+  return (
+    <div className="flex gap-2 mb-6">
+      {Object.entries(themes).map(([key, t]) => (
         <button
-          key={station.id}
-          onClick={() => onSelectStation(station)}
-          className="w-full bg-slate-800/80 backdrop-blur active:bg-slate-700 rounded-2xl p-4 text-left transition-all border border-slate-700/50 active:scale-[0.98]"
-        >
-          <div className="flex justify-between items-start mb-2">
-            <span className="bg-slate-600 text-white px-3 py-1.5 rounded-lg text-sm font-medium">
-              {station.station}
-            </span>
-            <span className="text-slate-400 text-sm">{station.questions.length} Qs</span>
-          </div>
-          <h3 className="text-white font-semibold text-lg mt-2">{station.name}</h3>
-          <p className="text-slate-400 text-sm mt-1">{station.age} • {station.role}</p>
-          <p className="text-slate-500 text-sm mt-3 line-clamp-2 leading-relaxed">{station.summary}</p>
-        </button>
+          key={key}
+          onClick={() => onThemeChange(key)}
+          className={`w-10 h-10 rounded-full border-2 transition-all ${
+            currentTheme === key ? 'border-white scale-110' : 'border-transparent'
+          } ${t.bg}`}
+          aria-label={`Switch to ${t.name} theme`}
+        />
       ))}
     </div>
-  </div>
-);
+  );
+};
 
 export default function ExamCompanion() {
   const [selectedStation, setSelectedStation] = useState(null);
   const [activeDay, setActiveDay] = useState('day1');
+  const [currentTheme, setCurrentTheme] = useState('navy');
+
+  const theme = themes[currentTheme];
 
   if (selectedStation) {
-    return <StationView station={selectedStation} onBack={() => setSelectedStation(null)} />;
+    return (
+      <ThemeContext.Provider value={theme}>
+        <StationView station={selectedStation} onBack={() => setSelectedStation(null)} />
+      </ThemeContext.Provider>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 p-4 safe-top">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-white">MFDS Exam Companion</h1>
-        <p className="text-slate-400 mt-1">Select a station to begin</p>
-      </div>
+    <ThemeContext.Provider value={theme}>
+      <div className={`min-h-screen ${theme.bg} p-4 safe-top`}>
+        <div className="mb-4">
+          <h1 className={`text-2xl font-bold ${theme.text}`}>MFDS Exam Companion</h1>
+          <p className={`${theme.textMuted} mt-1`}>Select a station to begin</p>
+        </div>
 
-      {/* Day Tabs - large touch targets */}
-      <div className="flex gap-3 mb-6">
-        <button
-          onClick={() => setActiveDay('day1')}
-          className={`flex-1 py-4 rounded-2xl font-semibold text-lg transition-all active:scale-[0.97] ${
-            activeDay === 'day1'
-              ? 'bg-white text-slate-900 shadow-lg'
-              : 'bg-slate-700/80 text-slate-300 active:bg-slate-600'
-          }`}
-        >
-          Day 1 <span className="text-sm opacity-70">({stationsData.day1.length})</span>
-        </button>
-        <button
-          onClick={() => setActiveDay('day2')}
-          className={`flex-1 py-4 rounded-2xl font-semibold text-lg transition-all active:scale-[0.97] ${
-            activeDay === 'day2'
-              ? 'bg-white text-slate-900 shadow-lg'
-              : 'bg-slate-700/80 text-slate-300 active:bg-slate-600'
-          }`}
-        >
-          Day 2 <span className="text-sm opacity-70">({stationsData.day2.length})</span>
-        </button>
-      </div>
+        <ThemeSelector currentTheme={currentTheme} onThemeChange={setCurrentTheme} />
 
-      {/* Station Lists */}
-      {activeDay === 'day1' && (
-        <StationList
-          day="Day 1 Stations"
-          stations={stationsData.day1}
-          onSelectStation={setSelectedStation}
-        />
-      )}
-      {activeDay === 'day2' && (
-        <StationList
-          day="Day 2 Stations"
-          stations={stationsData.day2}
-          onSelectStation={setSelectedStation}
-        />
-      )}
+        <div className="flex gap-3 mb-6">
+          <button
+            onClick={() => setActiveDay('day1')}
+            className={`flex-1 py-4 rounded-2xl font-semibold text-lg transition-all active:scale-[0.97] ${
+              activeDay === 'day1' ? theme.tabActive : theme.tabInactive
+            }`}
+          >
+            Day 1 <span className="text-sm opacity-70">({stationsData.day1.length})</span>
+          </button>
+          <button
+            onClick={() => setActiveDay('day2')}
+            className={`flex-1 py-4 rounded-2xl font-semibold text-lg transition-all active:scale-[0.97] ${
+              activeDay === 'day2' ? theme.tabActive : theme.tabInactive
+            }`}
+          >
+            Day 2 <span className="text-sm opacity-70">({stationsData.day2.length})</span>
+          </button>
+        </div>
 
-      {/* Quick Stats */}
-      <div className="mt-4 bg-slate-800/80 backdrop-blur rounded-2xl p-5 border border-slate-700/50">
-        <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
-          <span className="text-lg">📊</span> Quick Stats
-        </h3>
-        <div className="grid grid-cols-2 gap-4 text-center">
-          <div className="bg-slate-700/50 rounded-xl p-4">
-            <p className="text-3xl font-bold text-white">{stationsData.day1.length + stationsData.day2.length}</p>
-            <p className="text-slate-400 text-sm mt-1">Total Stations</p>
-          </div>
-          <div className="bg-slate-700/50 rounded-xl p-4">
-            <p className="text-3xl font-bold text-white">
-              {stationsData.day1.reduce((a, s) => a + s.questions.length, 0) +
-               stationsData.day2.reduce((a, s) => a + s.questions.length, 0)}
-            </p>
-            <p className="text-slate-400 text-sm mt-1">Total Questions</p>
+        {activeDay === 'day1' && (
+          <StationList
+            day="Day 1 Stations"
+            stations={stationsData.day1}
+            onSelectStation={setSelectedStation}
+          />
+        )}
+        {activeDay === 'day2' && (
+          <StationList
+            day="Day 2 Stations"
+            stations={stationsData.day2}
+            onSelectStation={setSelectedStation}
+          />
+        )}
+
+        <div className={`mt-4 ${theme.bgSecondary}/80 backdrop-blur rounded-2xl p-5 border ${theme.border}/50`}>
+          <h3 className={`${theme.text} font-semibold mb-4`}>Overview</h3>
+          <div className="grid grid-cols-2 gap-4 text-center">
+            <div className={`${theme.bgTertiary}/50 rounded-xl p-4`}>
+              <p className={`text-3xl font-bold ${theme.text}`}>{stationsData.day1.length + stationsData.day2.length}</p>
+              <p className={`${theme.textMuted} text-sm mt-1`}>Total Stations</p>
+            </div>
+            <div className={`${theme.bgTertiary}/50 rounded-xl p-4`}>
+              <p className={`text-3xl font-bold ${theme.text}`}>
+                {stationsData.day1.reduce((a, s) => a + s.questions.length, 0) +
+                 stationsData.day2.reduce((a, s) => a + s.questions.length, 0)}
+              </p>
+              <p className={`${theme.textMuted} text-sm mt-1`}>Total Questions</p>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Swipe hint */}
-      <p className="text-center text-slate-600 text-xs mt-6 mb-4">
-        Swipe from left edge to go back
-      </p>
-    </div>
+        <p className={`text-center ${theme.textSubtle} text-xs mt-6 mb-4`}>
+          Swipe from left edge to go back
+        </p>
+      </div>
+    </ThemeContext.Provider>
   );
 }
